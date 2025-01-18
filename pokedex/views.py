@@ -9,15 +9,21 @@ from pokedex.forms import PokemonForm, TrainerForm
 
 def index(request):
     pokemons = Pokemon.objects.all()
-    trainers = Trainer.objects.all()
-    
-    context = {
-        'pokemons': pokemons,
-        'trainers': trainers,
-    }
-    
     template = loader.get_template('index.html')
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(
+        {
+            'pokemons':pokemons,
+        },
+        request))
+
+def trainers(request):
+    trainers = Trainer.objects.all()
+    template = loader.get_template('trainer_list.html')
+    return HttpResponse(template.render(
+        {
+            'trainers':trainers,
+        },
+        request))
 
 def pokemon(request, pokemon_id):
     pokemon = Pokemon.objects.get(id=pokemon_id)
@@ -62,34 +68,6 @@ def edit_pokemon(request, pokemon_id):
 def delete_pokemon(request, pokemon_id):
     pokemon = Pokemon.objects.get(id=pokemon_id)
     pokemon.delete()
-    return redirect('pokedex:index')
-
-def add_trainer(request):
-    if request.method == 'POST':
-        form = TrainerForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('pokedex:index')
-    else:
-        form = TrainerForm()
-    
-    return render(request, 'trainer_form.html', {'form': form})
-
-def edit_trainer(request, trainer_id):
-    trainer = Trainer.objects.get(id=trainer_id)
-    if request.method == 'POST':
-        form = TrainerForm(request.POST, request.FILES, instance=trainer)
-        if form.is_valid():
-            form.save()
-            return redirect('pokedex:index')
-    else:
-        form = TrainerForm(instance=trainer)
-    
-    return render(request, 'trainer_form.html', {'form': form})
-
-def delete_trainer(request, trainer_id):
-    trainer = Trainer.objects.get(id=trainer_id)
-    trainer.delete()
     return redirect('pokedex:index')
 
 class CustomLoginView(LoginView):
